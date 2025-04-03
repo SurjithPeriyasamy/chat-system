@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+body {
+  background: url("./assets/bg.jpg") center;
+  background-size: cover;
+  @apply h-dvh flex justify-center items-center text-white;
+}
