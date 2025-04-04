@@ -12,7 +12,7 @@ const Search = (): JSX.Element => {
         <input
           type="text"
           name="search"
-          className="border-none placeholder:text-gray-400 placeholder:text-sm"
+          className="border-none placeholder:text-gray-400 placeholder:text-sm w-full outline-none p-1"
           placeholder="Search"
         />
       </div>
