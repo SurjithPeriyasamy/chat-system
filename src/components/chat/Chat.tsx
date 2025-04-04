@@ -20,6 +20,7 @@ const Chat = (): JSX.Element => {
   useEffect(() => {
     endRef?.current?.scrollIntoView({ behavior: "smooth" });
   }, []);
+
   const messages = [
     { user: "me", text: "lorem50kdkvlkdvkfkdfkdl", time: "1min ago" },
     { user: "other", text: "hi", time: "3min ago" },
@@ -32,6 +33,25 @@ const Chat = (): JSX.Element => {
     { user: "me", text: "lorem50kdkvlkdvkfkdfkdl", time: "1min ago" },
     { user: "other", text: "hi", time: "1min ago" },
   ];
+  const buttonRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target as Node) &&
+        !(e.target as HTMLElement).closest(".attachment-toggle")
+      ) {
+        setIsEmojiOpen(false);
+      }
+    };
+
+    if (isEmojiOpen) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [isEmojiOpen]);
   return (
     <div className="w-1/2 py-2.5 px-1.5 relative  flex flex-col">
       <div className="flex items-center justify-between border-b border-b-slate-500 pb-2">
@@ -79,18 +99,20 @@ const Chat = (): JSX.Element => {
           placeholder="Type a message"
           className="bg-gray-700 w-3/5 py-2 px-3 rounded-lg outline-none"
         />
-        <MdEmojiEmotions
-          className="cursor-pointer"
-          size={23}
-          onClick={() => setIsEmojiOpen((prev) => !prev)}
-        />
-        <div className="absolute bottom-12 right-10">
-          <EmojiPicker
-            height={400}
-            width={300}
-            open={isEmojiOpen}
-            onEmojiClick={handleEmojiClick}
+        <div className="attachment-toggle">
+          <MdEmojiEmotions
+            className="cursor-pointer"
+            size={23}
+            onClick={() => setIsEmojiOpen((prev) => !prev)}
           />
+          <div ref={buttonRef} className="absolute bottom-12 right-10">
+            <EmojiPicker
+              height={400}
+              width={300}
+              open={isEmojiOpen}
+              onEmojiClick={handleEmojiClick}
+            />
+          </div>
         </div>
         <button className="bg-blue-500 rounded-lg px-3 py-2">Send</button>
       </div>
