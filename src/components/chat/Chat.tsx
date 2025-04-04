@@ -1,4 +1,4 @@
-import React, { JSX, useState } from "react";
+import React, { JSX, useEffect, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import { BiSolidUserCircle } from "react-icons/bi";
 import { IoVideocam } from "react-icons/io5";
@@ -16,6 +16,10 @@ const Chat = (): JSX.Element => {
     setIsEmojiOpen(false);
   };
 
+  const endRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    endRef?.current?.scrollIntoView({ behavior: "smooth" });
+  }, []);
   const messages = [
     { user: "me", text: "lorem50kdkvlkdvkfkdfkdl", time: "1min ago" },
     { user: "other", text: "hi", time: "3min ago" },
@@ -63,6 +67,7 @@ const Chat = (): JSX.Element => {
             <span className="text-xs text-slate-400">{message.time}</span>
           </div>
         ))}
+        <div ref={endRef}></div>
       </div>
       <div className="flex justify-around items-center w-full pr-2 pt-2">
         <AiFillPicture size={20} />
