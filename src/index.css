@@ -5,3 +5,7 @@ body {
   background-size: cover;
   @apply h-dvh flex justify-center items-center text-white;
 }
+
+.input {
+  @apply py-2 px-4 outline-none bg-gray-800 rounded-lg placeholder:text-sm;
+}
