@@ -6,10 +6,16 @@ import Browse from "../components/Browse";
 export const appRouter = createBrowserRouter([
   {
     path: "/",
-    Component: Browse,
-  },
-  {
-    path: "/login",
-    Component: Login,
+    Component: App,
+    children: [
+      {
+        path: "/",
+        Component: Browse,
+      },
+      {
+        path: "/login",
+        Component: Login,
+      },
+    ],
   },
 ]);
