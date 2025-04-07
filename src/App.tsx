@@ -1,13 +1,12 @@
-import List from "./components/list/List";
-import Detail from "./components/detail/Detail";
-import Chat from "./components/chat/Chat";
 import { useEffect, useState } from "react";
-import { Outlet, RouterProvider, useNavigate } from "react-router-dom";
-import { appRouter } from "./utils/appRouter.ts";
+import { Outlet, useNavigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { auth } from "./lib/firebase.ts";
+import { auth, db } from "./lib/firebase.ts";
 import { onAuthStateChanged } from "firebase/auth/web-extension";
-import { UserType, useUserStore } from "./utils/userStore.ts";
+import { doc, getDoc } from "firebase/firestore";
+import { useDispatch, useSelector } from "react-redux";
+import { addUser, UserData } from "./utils/userSlice.ts";
+import { RootState } from "./utils/appStore.ts";
 function App() {
   //   const [online, setOnline] = useState(navigator.onLine);
   //   console.log(navigator);
@@ -41,32 +40,49 @@ function App() {
   //   }, []);
 
   const navigate = useNavigate();
-  const { currentUser, isLoading, fetchUserInfo } = useUserStore(
-    (state) => state
-  );
+  const dispatch = useDispatch();
+  const [loading, setLoading] = useState(false);
+  const { currentUser } = useSelector((store: RootState) => store.user);
+  const fetchUserInfo = async (uid: string): Promise<void> => {
+    try {
+      const docRef = doc(db, "users", uid);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        // set({ isLoading: false, currentUser: docSnap.data() as UserData });
+        dispatch(addUser(docSnap.data() as UserData));
+        navigate("/");
+        console.log("Document data:", docSnap.data());
+      } else {
+        // docSnap.data() will be undefined in this case
+        console.log("No such document!");
+        navigate("/login");
+        // set({ isLoading: false, currentUser: null });
+      }
+    } catch (error) {
+      console.log(error);
+      navigate("/login");
+    }
+  };
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/auth.user
-        if (currentUser) {
-          navigate("/");
+        if (!currentUser) {
+          fetchUserInfo(user.uid);
+        } else {
+          navigate("/login");
         }
-        fetchUserInfo(user.uid, navigate);
-
-        // ...
       } else {
         // User is signed out
-        // ...
         navigate("/login");
       }
     });
 
-    return () => unsubscribe();
-  }, [fetchUserInfo]);
+    return unsubscribe;
+  }, []);
   return (
     <div className="h-[90vh] w-[90vw] bg-[rgb(17,25,40,0.75)] rounded-lg">
-      {isLoading ? <div className="text-xl">Loading......</div> : <Outlet />}
+      <Outlet />
       <ToastContainer />
     </div>
   );
