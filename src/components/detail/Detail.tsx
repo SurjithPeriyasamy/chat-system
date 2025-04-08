@@ -1,9 +1,13 @@
+import { signOut } from "firebase/auth/web-extension";
 import { JSX } from "react";
 import { BiSolidUserCircle } from "react-icons/bi";
-import { FaAngleDown } from "react-icons/fa6";
 import { FaAngleUp } from "react-icons/fa6";
+import { auth } from "../../lib/firebase";
+import { useDispatch } from "react-redux";
+import { removeUser } from "../../utils/userSlice";
 
 const Detail = (): JSX.Element => {
+  const dispatch = useDispatch();
   return (
     <div className="w-1/5 border-none space-y-10">
       <div className="flex flex-col items-center gap-2">
@@ -35,7 +39,18 @@ const Detail = (): JSX.Element => {
         <button className="bg-[rgba(255,0,0,0.40)] p-2 rounded-lg ">
           Block User
         </button>
-        <button className="bg-[rgba(0,32,255,0.45)] p-2 rounded-lg">
+        <button
+          onClick={() => {
+            signOut(auth)
+              .then(() => {
+                dispatch(removeUser());
+              })
+              .catch((error) => {
+                // An error happened.
+              });
+          }}
+          className="bg-[rgba(0,32,255,0.45)] p-2 rounded-lg cursor-pointer"
+        >
           Log out
         </button>
       </div>

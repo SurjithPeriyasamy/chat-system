@@ -7,6 +7,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { useDispatch, useSelector } from "react-redux";
 import { addUser, UserData } from "./utils/userSlice.ts";
 import { RootState } from "./utils/appStore.ts";
+import { useAppDispatch, useAppSelector } from "./hooks/reduxType.ts";
 function App() {
   //   const [online, setOnline] = useState(navigator.onLine);
   //   console.log(navigator);
@@ -40,21 +41,19 @@ function App() {
   //   }, []);
 
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
-  const { currentUser } = useSelector((store: RootState) => store.user);
+  const { currentUser } = useAppSelector((store) => store.user);
   const fetchUserInfo = async (uid: string): Promise<void> => {
     try {
       const docRef = doc(db, "users", uid);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        // set({ isLoading: false, currentUser: docSnap.data() as UserData });
         dispatch(addUser(docSnap.data() as UserData));
         navigate("/");
         console.log("Document data:", docSnap.data());
       } else {
-        // docSnap.data() will be undefined in this case
         console.log("No such document!");
         navigate("/login");
         // set({ isLoading: false, currentUser: null });
@@ -68,9 +67,9 @@ function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         if (!currentUser) {
-          fetchUserInfo(user.uid);
+          fetchUserInfo(user?.uid);
         } else {
-          navigate("/login");
+          navigate("/");
         }
       } else {
         // User is signed out
@@ -79,7 +78,7 @@ function App() {
     });
 
     return unsubscribe;
-  }, []);
+  }, [fetchUserInfo]);
   return (
     <div className="h-[90vh] w-[90vw] bg-[rgb(17,25,40,0.75)] rounded-lg">
       <Outlet />
